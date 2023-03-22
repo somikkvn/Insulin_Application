@@ -1,3 +1,15 @@
 <resources>
     <string name="app_name">Insulin Application</string>
+    <string name="user_data">Введіть дані пацієнта</string>
+    <string name="height_label">Зріст (см)</string>
+    <string name="weight_label">Вага (кг)</string>
+    <string name="age_label">Вік</string>
+    <string name="calculate_dose">Розрахувати дозу</string>
+    <string name="radio1">Вперше виявленний цукровий діабет</string>
+    <string name="radio2">Більше року(добра компресія)</string>
+    <string name="radio3">Більше року (нестійка компресія)</string>
+    <string name="radio4">Декомпенсація</string>
+    <string name="radio5">Кетоацидоз</string>
+    <string name="radio6">3й триместр вагітності.</string>
+    <string name="new_page">Календар</string>
 </resources>
