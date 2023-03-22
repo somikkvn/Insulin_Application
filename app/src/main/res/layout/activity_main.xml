@@ -112,7 +112,7 @@
                 android:layout_height="wrap_content"
                 android:background="#F097C4F1"
                 android:onClick="onRadioButtonClicked"
-                android:text="@string/radio6" />
+                android:text="@string/radio5" />
 
             <RadioButton
                 android:id="@+id/radioButton6"
@@ -139,7 +139,7 @@
             android:backgroundTint="#C2185B"
             android:padding="16dp"
             android:text="@string/calculate_dose"
-            android:textSize="20sp"
+            android:textSize="16sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
@@ -150,11 +150,12 @@
             android:id="@+id/buttonNext"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="48dp"
+            android:layout_marginTop="28dp"
             android:backgroundTint="#C2185B"
             android:onClick="myCalendar"
             android:text="@string/new_page"
             app:layout_constraintEnd_toStartOf="@+id/btnLogout"
+            app:layout_constraintHorizontal_bias="0.496"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/buttonCalculate"
             tools:ignore="MissingConstraints" />
@@ -163,7 +164,7 @@
             android:id="@+id/btnLogout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="48dp"
+            android:layout_marginTop="28dp"
             android:layout_marginEnd="64dp"
             android:backgroundTint="#C2185B"
             android:text="Вихід"

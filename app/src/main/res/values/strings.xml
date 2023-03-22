@@ -4,7 +4,7 @@
     <string name="height_label">Зріст (см)</string>
     <string name="weight_label">Вага (кг)</string>
     <string name="age_label">Вік</string>
-    <string name="calculate_dose">Розрахувати дозу</string>
+    <string name="calculate_dose">Записати дозу в базу даних</string>
     <string name="radio1">Вперше виявленний цукровий діабет</string>
     <string name="radio2">Більше року(добра компресія)</string>
     <string name="radio3">Більше року (нестійка компресія)</string>
