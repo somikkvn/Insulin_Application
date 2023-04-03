@@ -12,13 +12,24 @@ import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ServerValue;
+
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
 
     Button btnLogOut;
+    Button buttonNext;
     FirebaseAuth mAuth;
     private EditText editTextHeight, editTextWeight, editTextAge;
     private int weight;
+
+    private double insulinNorm,longInsulinRatio, shortInsulinRatio, morningDose, eveningDose;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,6 +37,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         btnLogOut = findViewById(R.id.btnLogout);
+        buttonNext = findViewById(R.id.buttonNext);
         mAuth = FirebaseAuth.getInstance();
         editTextHeight = findViewById(R.id.editTextHeight);
         editTextWeight = findViewById(R.id.editTextWeight);
@@ -35,7 +47,7 @@ public class MainActivity extends AppCompatActivity {
         buttonCalculate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                calculateInsulinDose();
+                writeInsulinDose();
             }
         });
 
@@ -44,6 +56,10 @@ public class MainActivity extends AppCompatActivity {
             startActivity(new Intent(MainActivity.this, LoginActivity.class));
         });
 
+    }
+    public void myCalendar(View v){
+        Intent intent = new Intent(this, CalendarActivity.class);
+        startActivity(intent);
     }
 
     @Override
@@ -55,30 +71,22 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void calculateInsulinDose() {
-        // Отримання даних користувача
-        int height = Integer.parseInt(editTextHeight.getText().toString());
-        weight = Integer.parseInt(editTextWeight.getText().toString());
-        int age = Integer.parseInt(editTextAge.getText().toString());
+    public void writeInsulinDose() {
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference myRef = database.getReference("myTableDose");
+        Date currentDate = new Date();
+        // Step 3: Create a Map object to hold the data including id and timestamp
+        Map<String, String> dataMap = new HashMap<>();
+        dataMap.put("id", String.valueOf(myRef.push().getKey()));
+        dataMap.put("insulinNorm", String.valueOf(this.insulinNorm));
+        dataMap.put("longInsulinRatio", String.valueOf(this.longInsulinRatio));
+        dataMap.put("shortInsulinRatio", String.valueOf(this.shortInsulinRatio));
+        dataMap.put("morningDose", String.valueOf(this.morningDose));
+        dataMap.put("eveningDose", String.valueOf(this.eveningDose));
+        dataMap.put("time", currentDate.toString());
 
-        // Розрахунок добової норми інсуліну
-        double insulinNorm = calculateInsulinNorm(weight);
-
-        // Розрахунок долі інсуліну довгої та короткої дії
-        double longInsulinRatio = calculateLongInsulinRatio();
-        double shortInsulinRatio = 1 - longInsulinRatio;
-
-        // Розрахунок ранкової та вечірньої дози інсуліну довгої дії
-        double morningDose = calculateMorningLongDose(longInsulinRatio);
-        double eveningDose = calculateEveningLongDose(longInsulinRatio);
-
-//        // Виведення результатів на екран
-//        String resultText = "Добова норма інсуліну: " + insulinNorm + " од.\n"
-//                + "Доля інсуліну довгої дії: " + longInsulinRatio + "\n"
-//                + "Доля інсуліну короткої дії: " + shortInsulinRatio + "\n"
-//                + "Ранкова доза інсуліну довгої дії: " + morningDose + " од.\n"
-//                + "Вечірня доза інсуліну довгої дії: " + eveningDose + " од.\n";
-//        Toast.makeText(this, resultText, Toast.LENGTH_LONG).show();
+        // Step 4: Store the data in the Firebase table
+        myRef.child(String.valueOf(myRef.push().getKey())).setValue(dataMap);
     }
 
     private double calculateMorningLongDose(double longInsulinRatio) {
@@ -104,175 +112,61 @@ public class MainActivity extends AppCompatActivity {
     public void onRadioButtonClicked(View view) {
         // Is the button now checked?
         boolean checked = ((RadioButton) view).isChecked();
+        double insulin_norm_value = 1;
 
-        // Вперше виявлений ЦД типу 1 (коефіцієнт 0,5)
         switch(view.getId()) {
             case R.id.radioButton:
-                if (checked){
-                    int height = Integer.parseInt(editTextHeight.getText().toString());
-                    weight = Integer.parseInt(editTextWeight.getText().toString());
-                    int age = Integer.parseInt(editTextAge.getText().toString());
-
-                    // Розрахунок добової норми інсуліну
-                    double insulinNorm = calculateInsulinNorm(weight) * 0.5;
-
-                    // Розрахунок долі інсуліну довгої та короткої дії
-                    double longInsulinRatio = calculateLongInsulinRatio() * 0.5;
-                    double shortInsulinRatio = (insulinNorm - longInsulinRatio) * 0.5;
-
-                    // Розрахунок ранкової та вечірньої дози інсуліну довгої дії
-                    double morningDose = calculateMorningLongDose(longInsulinRatio) * 0.5;
-                    double eveningDose = calculateEveningLongDose(longInsulinRatio) * 0.5;
-
-                    // Виведення результатів на екран
-                    String resultText = "Добова норма інсуліну: " + insulinNorm + " од.\n"
-                            + "Доля інсуліну довгої дії: " + longInsulinRatio + "\n"
-                            + "Доля інсуліну короткої дії: " + shortInsulinRatio + "\n"
-                            + "Ранкова доза інсуліну довгої дії: " + morningDose + " од.\n"
-                            + "Вечірня доза інсуліну довгої дії: " + eveningDose + " од.\n";
-                    Toast.makeText(this, resultText, Toast.LENGTH_LONG).show();
-                }
+                insulin_norm_value =  0.5;
                 break;
-
-            // ЦД типу 1 тривалістю більше року в хорошій компенсації (k=0,6)
             case R.id.radioButton2:
-                if (checked){
-                    int height = Integer.parseInt(editTextHeight.getText().toString());
-                    weight = Integer.parseInt(editTextWeight.getText().toString());
-                    int age = Integer.parseInt(editTextAge.getText().toString());
-
-                    // Розрахунок добової норми інсуліну
-                    double insulinNorm = calculateInsulinNorm(weight) * 0.6;
-
-                    // Розрахунок долі інсуліну довгої та короткої дії
-                    double longInsulinRatio = calculateLongInsulinRatio() * 0.6;
-                    double shortInsulinRatio = (insulinNorm - longInsulinRatio) * 0.6;
-
-                    // Розрахунок ранкової та вечірньої дози інсуліну довгої дії
-                    double morningDose = calculateMorningLongDose(longInsulinRatio) * 0.6;
-                    double eveningDose = calculateEveningLongDose(longInsulinRatio) * 0.6;
-
-                    // Виведення результатів на екран
-                    String resultText = "Добова норма інсуліну: " + insulinNorm + " од.\n"
-                            + "Доля інсуліну довгої дії: " + longInsulinRatio + "\n"
-                            + "Доля інсуліну короткої дії: " + shortInsulinRatio + "\n"
-                            + "Ранкова доза інсуліну довгої дії: " + morningDose + " од.\n"
-                            + "Вечірня доза інсуліну довгої дії: " + eveningDose + " од.\n";
-                    Toast.makeText(this, resultText, Toast.LENGTH_LONG).show();
-                }
-                    break;
-
-                // ЦД типу 1 тривалістю більше року при нестійкій компенсації (k=0,7)
+                insulin_norm_value =  0.6;
+                break;
             case R.id.radioButton3:
-                    if (checked){
-                        int height = Integer.parseInt(editTextHeight.getText().toString());
-                        weight = Integer.parseInt(editTextWeight.getText().toString());
-                        int age = Integer.parseInt(editTextAge.getText().toString());
-
-                        // Розрахунок добової норми інсуліну
-                        double insulinNorm = calculateInsulinNorm(weight) * 0.7;
-
-                        // Розрахунок долі інсуліну довгої та короткої дії
-                        double longInsulinRatio = calculateLongInsulinRatio() * 0.7;
-                        double shortInsulinRatio = (insulinNorm - longInsulinRatio) * 0.7;
-
-                        // Розрахунок ранкової та вечірньої дози інсуліну довгої дії
-                        double morningDose = calculateMorningLongDose(longInsulinRatio) * 0.7;
-                        double eveningDose = calculateEveningLongDose(longInsulinRatio) * 0.7;
-
-                        // Виведення результатів на екран
-                        String resultText = "Добова норма інсуліну: " + insulinNorm + " од.\n"
-                                + "Доля інсуліну довгої дії: " + longInsulinRatio + "\n"
-                                + "Доля інсуліну короткої дії: " + shortInsulinRatio + "\n"
-                                + "Ранкова доза інсуліну довгої дії: " + morningDose + " од.\n"
-                                + "Вечірня доза інсуліну довгої дії: " + eveningDose + " од.\n";
-                        Toast.makeText(this, resultText, Toast.LENGTH_LONG).show();
-                    }
-                    break;
-
-            // ЦД типу 1 в ситуації декомпенсації (k=0,8)
+                insulin_norm_value =  0.7;
+                break;
             case R.id.radioButton4:
-                if (checked){
-                    int height = Integer.parseInt(editTextHeight.getText().toString());
-                    weight = Integer.parseInt(editTextWeight.getText().toString());
-                    int age = Integer.parseInt(editTextAge.getText().toString());
-
-                    // Розрахунок добової норми інсуліну
-                    double insulinNorm = calculateInsulinNorm(weight) * 0.8;
-
-                    // Розрахунок долі інсуліну довгої та короткої дії
-                    double longInsulinRatio = calculateLongInsulinRatio() * 0.8;
-                    double shortInsulinRatio = (insulinNorm - longInsulinRatio) * 0.8;
-
-                    // Розрахунок ранкової та вечірньої дози інсуліну довгої дії
-                    double morningDose = calculateMorningLongDose(longInsulinRatio) * 0.8;
-                    double eveningDose = calculateEveningLongDose(longInsulinRatio) * 0.8;
-
-                    // Виведення результатів на екран
-                    String resultText = "Добова норма інсуліну: " + insulinNorm + " од.\n"
-                            + "Доля інсуліну довгої дії: " + longInsulinRatio + "\n"
-                            + "Доля інсуліну короткої дії: " + shortInsulinRatio + "\n"
-                            + "Ранкова доза інсуліну довгої дії: " + morningDose + " од.\n"
-                            + "Вечірня доза інсуліну довгої дії: " + eveningDose + " од.\n";
-                    Toast.makeText(this, resultText, Toast.LENGTH_LONG).show();
-                }
+                insulin_norm_value =  0.8;
                 break;
-
-            // ЦД типу 1 в стані кетоацидозу (k=0,9)
             case R.id.radioButton5:
-                if (checked){
-                    int height = Integer.parseInt(editTextHeight.getText().toString());
-                    weight = Integer.parseInt(editTextWeight.getText().toString());
-                    int age = Integer.parseInt(editTextAge.getText().toString());
-
-                    // Розрахунок добової норми інсуліну
-                    double insulinNorm = calculateInsulinNorm(weight) * 0.9;
-
-                    // Розрахунок долі інсуліну довгої та короткої дії
-                    double longInsulinRatio = calculateLongInsulinRatio() * 0.9;
-                    double shortInsulinRatio = (insulinNorm - longInsulinRatio) * 0.9;
-
-                    // Розрахунок ранкової та вечірньої дози інсуліну довгої дії
-                    double morningDose = calculateMorningLongDose(longInsulinRatio) * 0.9;
-                    double eveningDose = calculateEveningLongDose(longInsulinRatio) * 0.9;
-
-                    // Виведення результатів на екран
-                    String resultText = "Добова норма інсуліну: " + insulinNorm + " од.\n"
-                            + "Доля інсуліну довгої дії: " + longInsulinRatio + "\n"
-                            + "Доля інсуліну короткої дії: " + shortInsulinRatio + "\n"
-                            + "Ранкова доза інсуліну довгої дії: " + morningDose + " од.\n"
-                            + "Вечірня доза інсуліну довгої дії: " + eveningDose + " од.\n";
-                    Toast.makeText(this, resultText, Toast.LENGTH_LONG).show();
-                }
+                insulin_norm_value =  0.9;
                 break;
-
-            // ЦД типу 1 в пубертатному періоді або в III триместрі вагітності (k=1)
-            case R.id.radioButton6:
-                if (checked){
-                    int height = Integer.parseInt(editTextHeight.getText().toString());
-                    weight = Integer.parseInt(editTextWeight.getText().toString());
-                    int age = Integer.parseInt(editTextAge.getText().toString());
-
-                    // Розрахунок добової норми інсуліну
-                    double insulinNorm = calculateInsulinNorm(weight);
-
-                    // Розрахунок долі інсуліну довгої та короткої дії
-                    double longInsulinRatio = calculateLongInsulinRatio();
-                    double shortInsulinRatio = insulinNorm - longInsulinRatio;
-
-                    // Розрахунок ранкової та вечірньої дози інсуліну довгої дії
-                    double morningDose = calculateMorningLongDose(longInsulinRatio);
-                    double eveningDose = calculateEveningLongDose(longInsulinRatio);
-
-                    // Виведення результатів на екран
-                    String resultText = "Добова норма інсуліну: " + insulinNorm + " од.\n"
-                            + "Доля інсуліну довгої дії: " + longInsulinRatio + "\n"
-                            + "Доля інсуліну короткої дії: " + shortInsulinRatio + "\n"
-                            + "Ранкова доза інсуліну довгої дії: " + morningDose + " од.\n"
-                            + "Вечірня доза інсуліну довгої дії: " + eveningDose + " од.\n";
-                    Toast.makeText(this, resultText, Toast.LENGTH_LONG).show();
-                }
+            default:
+                insulin_norm_value =  1;
                 break;
         }
+
+        if (checked){
+                    int height = Integer.parseInt(editTextHeight.getText().toString());
+                    weight = Integer.parseInt(editTextWeight.getText().toString());
+                    int age = Integer.parseInt(editTextAge.getText().toString());
+                    Date currentDate = new Date();
+                    //Отримуємо дані користувача з Firebase
+                    FirebaseAuth mAuth = FirebaseAuth.getInstance();
+                    FirebaseUser currentUser = mAuth.getCurrentUser();
+
+                    String email = currentUser.getEmail();
+
+                    // Розрахунок добової норми інсуліну
+                    this.insulinNorm = calculateInsulinNorm(weight) * insulin_norm_value;
+
+                    // Розрахунок долі інсуліну довгої та короткої дії
+                    this.longInsulinRatio = calculateLongInsulinRatio() * insulin_norm_value;
+                    this.shortInsulinRatio = (this.insulinNorm - this.longInsulinRatio) * insulin_norm_value;
+
+                    // Розрахунок ранкової та вечірньої дози інсуліну довгої дії
+                    this.morningDose = calculateMorningLongDose(longInsulinRatio) * insulin_norm_value;
+                    this.eveningDose = calculateEveningLongDose(longInsulinRatio) * insulin_norm_value;
+
+                    // Виведення результатів на екран
+                    String resultText = "Email: " + email + "\n"
+                            + "Добова норма інсуліну: " + this.insulinNorm + " од.\n"
+                            + "Доля інсуліну довгої дії: " + this.longInsulinRatio + "\n"
+                            + "Доля інсуліну короткої дії: " + this.shortInsulinRatio + "\n"
+                            + "Ранкова доза інсуліну довгої дії: " + this.morningDose + " од.\n"
+                            + "Вечірня доза інсуліну довгої дії: " + this.eveningDose + " од.\n"
+                            + "Час: " +  currentDate;
+                    Toast.makeText(this, resultText, Toast.LENGTH_LONG).show();
+
+                }
     }
 }
