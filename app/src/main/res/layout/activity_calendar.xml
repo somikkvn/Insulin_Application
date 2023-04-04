@@ -44,7 +44,8 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:backgroundTint="#C2185B"
-                    android:text="Конвертувати в pdf" />
+                    android:onClick="generateTxt"
+                    android:text="Зберегти в файл" />
 
             </LinearLayout>
 

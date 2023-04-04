@@ -1,9 +1,10 @@
 package com.example.insulinapplication;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.util.Log;
+import android.os.Environment;
 import android.view.View;
 import android.widget.Toast;
 
@@ -17,25 +18,30 @@ import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
-import com.github.mikephil.charting.formatter.IAxisValueFormatter;
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter;
-import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
-
 import java.util.ArrayList;
 
 public class ChartActivity extends AppCompatActivity {
 
     private LineChart mChart;
-
+    private String userId;
+    FirebaseAuth mAuth;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chart);
+
+        // Get the userId from the intent
+        userId = getIntent().getStringExtra("userId");
+        mAuth = FirebaseAuth.getInstance();
 
         mChart = findViewById(R.id.line_chart);
 
@@ -81,7 +87,10 @@ public class ChartActivity extends AppCompatActivity {
 
         // Retrieve the data from your database here and add it to the entries list
         DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("myTableDose");
-        databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        String user_id = currentUser.getUid();
+        Query query = databaseReference.orderByChild("userId").equalTo(user_id);
+        query.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 int index = 0;
@@ -129,7 +138,9 @@ public class ChartActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+
     public void onChartClick(View view) {
         Toast.makeText(this, "Chart button clicked!", Toast.LENGTH_SHORT).show();
     }
 }
+

@@ -74,20 +74,27 @@ public class MainActivity extends AppCompatActivity {
     public void writeInsulinDose() {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference myRef = database.getReference("myTableDose");
-        Date currentDate = new Date();
-        // Step 3: Create a Map object to hold the data including id and timestamp
-        Map<String, String> dataMap = new HashMap<>();
-        dataMap.put("id", String.valueOf(myRef.push().getKey()));
-        dataMap.put("insulinNorm", String.valueOf(this.insulinNorm));
-        dataMap.put("longInsulinRatio", String.valueOf(this.longInsulinRatio));
-        dataMap.put("shortInsulinRatio", String.valueOf(this.shortInsulinRatio));
-        dataMap.put("morningDose", String.valueOf(this.morningDose));
-        dataMap.put("eveningDose", String.valueOf(this.eveningDose));
-        dataMap.put("time", currentDate.toString());
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if (currentUser != null) {
+            String userId = currentUser.getUid();
+            Date currentDate = new Date();
+            // Step 3: Create a Map object to hold the data including id, userId and timestamp
+            Map<String, String> dataMap = new HashMap<>();
+            dataMap.put("id", String.valueOf(myRef.push().getKey()));
+            dataMap.put("userId", userId);
+            dataMap.put("insulinNorm", String.valueOf(this.insulinNorm));
+            dataMap.put("longInsulinRatio", String.valueOf(this.longInsulinRatio));
+            dataMap.put("shortInsulinRatio", String.valueOf(this.shortInsulinRatio));
+            dataMap.put("morningDose", String.valueOf(this.morningDose));
+            dataMap.put("eveningDose", String.valueOf(this.eveningDose));
+            dataMap.put("time", currentDate.toString());
 
-        // Step 4: Store the data in the Firebase table
-        myRef.child(String.valueOf(myRef.push().getKey())).setValue(dataMap);
+            // Step 4: Store the data in the Firebase table
+            myRef.child(String.valueOf(myRef.push().getKey())).setValue(dataMap);
+        }
     }
+
+
 
     private double calculateMorningLongDose(double longInsulinRatio) {
         // Ранкова доза інсуліну довгої дії обчислюється як 2/3 від добової норми інсуліну довгої дії
