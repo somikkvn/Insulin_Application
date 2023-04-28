@@ -23,6 +23,7 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -46,8 +47,16 @@ public class ProductDialogFragment extends DialogFragment {
         editTextList = new ArrayList<>();
         spinnerList = new ArrayList<>();
         parentLayout = dialog.findViewById(R.id.parentLayout);
+
+        Spinner spinnerMeal = dialog.findViewById(R.id.productMeals);
+        String[] options  = getResources().getStringArray(R.array.my_options);
+        adapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_item, options);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerMeal.setAdapter(adapter);
+
         Spinner spinner = dialog.findViewById(R.id.productSpinner1);
         EditText editView = dialog.findViewById(R.id.productEditText1);
+
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference myRef = database.getReference("products");
         myRef.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -111,6 +120,9 @@ public class ProductDialogFragment extends DialogFragment {
             @Override
             public void onClick(View v) {
                 sum_ins = 0;
+                Spinner spinnerMeal = dialog.findViewById(R.id.productMeals);
+                String mealValue = spinnerMeal.getSelectedItem().toString();
+
                 for (int i = 0; i < rowCount; i++) {
                     double editText = Double.parseDouble(((EditText) editTextList.get(i)).getText().toString());
                     String spinnerText = ((Spinner) spinnerList.get(i)).getSelectedItem().toString();
@@ -134,9 +146,18 @@ public class ProductDialogFragment extends DialogFragment {
                                   sum_ins = sum_ins + (carbohydrates / 10 * glycemicIndex / 100 * editText / 100);
 
                                   if (finalI == (rowCount - 1)) {
+                                      if (mealValue.equals("Сніданок")) {
+                                          Log.w("meal", mealValue);
+                                          sum_ins = sum_ins * 2;
+                                      } else if ((mealValue.equals("Обід")) ) {
+                                          sum_ins = sum_ins * 1.5;
+                                      }
+                                      Log.w("meal1", mealValue);
                                       sum_ins = Math.round(sum_ins * 100.0) / 100.0;
-                                      mealDiaryMap.put("recommended_dose", sum_ins);
                                       mealDiaryMap.put("id", count_meal + 1);
+                                      mealDiaryMap.put("recommended_dose", sum_ins);
+                                      mealDiaryMap.put("meal", mealValue);
+                                      mealDiaryMap.put("date", (new Date()).toString());
                                       mealDiaryRef.child(String.valueOf(mealDiaryRef.push().getKey())).setValue(mealDiaryMap);
                                       dismiss();
                                       showMessageDialogFragment(String.valueOf(sum_ins));
@@ -165,15 +186,6 @@ public class ProductDialogFragment extends DialogFragment {
             @Override
             public void onClick(View v) {
                 addRow();
-            }
-        });
-
-        Button btnPlus = dialog.findViewById(R.id.btnPlus);
-        btnPlus.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                FoodDialogFragment dialogFragment = new FoodDialogFragment();
-                dialogFragment.show(requireActivity().getSupportFragmentManager(), "FoodDialogFragment");
             }
         });
 
