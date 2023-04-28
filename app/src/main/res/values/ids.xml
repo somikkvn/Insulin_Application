@@ -1,0 +1,5 @@
+<resources>
+    <item name="productTextView" type="id"/>
+    <item name="productSpinner" type="id"/>
+    <item name="productEditText" type="id"/>
+</resources>

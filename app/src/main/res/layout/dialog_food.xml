@@ -1,0 +1,68 @@
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <EditText
+            android:id="@+id/editTextName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Name" />
+
+        <EditText
+            android:id="@+id/editTextKilocal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Kilocal" />
+
+        <EditText
+            android:id="@+id/editTextProteins"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Proteins" />
+
+        <EditText
+            android:id="@+id/editTextFats"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Fats" />
+
+        <EditText
+            android:id="@+id/editTextCarbohydrates"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Carbohydrates" />
+
+        <EditText
+            android:id="@+id/editTextGlycemicIndex"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Glycemic Index" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+                <Button
+                    android:id="@+id/buttonSave"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Save"
+                    android:textColor="@android:color/white"
+                    android:backgroundTint="@color/colorButton" />
+
+                <Button
+                    android:id="@+id/buttonClose"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Close"
+                    android:textColor="@android:color/white"
+                    android:backgroundTint="@color/colorButton" />
+
+        </LinearLayout>
+
+    </LinearLayout>

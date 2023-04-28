@@ -15,165 +15,47 @@
         tools:layout_editor_absoluteX="-84dp"
         tools:layout_editor_absoluteY="-31dp">
 
-        <TextView
-            android:id="@+id/textView"
+        <Button
+            android:id="@+id/buttonAddMeal"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginTop="80dp"
+            android:backgroundTint="#C2185B"
             android:padding="16dp"
-            android:text="@string/user_data"
-            android:textColor="@color/black"
-            android:textSize="20sp"
+            android:text="@string/add_meal"
+            android:textSize="16sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <EditText
-            android:id="@+id/editTextHeight"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:hint="@string/height_label"
-            android:importantForAutofill="no"
-            android:inputType="number"
-            android:padding="12dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textView" />
-
-        <EditText
-            android:id="@+id/editTextWeight"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:hint="@string/weight_label"
-            android:importantForAutofill="no"
-            android:inputType="number"
-            android:padding="12dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/editTextHeight" />
-
-        <EditText
-            android:id="@+id/editTextAge"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="1dp"
-            android:hint="@string/age_label"
-            android:importantForAutofill="no"
-            android:inputType="number"
-            android:padding="12dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/editTextWeight" />
-
-
-        <RadioGroup
-            android:id="@+id/radioGroup"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:background="#FBEAC0"
-            android:orientation="vertical"
-            app:layout_constraintTop_toBottomOf="@+id/editTextAge"
-            tools:layout_editor_absoluteX="0dp">
-
-            <RadioButton
-                android:id="@+id/radioButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="#F097C4F1"
-                android:onClick="onRadioButtonClicked"
-                android:text="@string/radio1" />
-
-            <RadioButton
-                android:id="@+id/radioButton2"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="#E6E2CE"
-                android:onClick="onRadioButtonClicked"
-                android:text="@string/radio2" />
-
-            <RadioButton
-                android:id="@+id/radioButton3"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="#F097C4F1"
-                android:onClick="onRadioButtonClicked"
-                android:text="@string/radio3" />
-
-            <RadioButton
-                android:id="@+id/radioButton4"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:onClick="onRadioButtonClicked"
-                android:text="@string/radio4" />
-
-            <RadioButton
-                android:id="@+id/radioButton5"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="#F097C4F1"
-                android:onClick="onRadioButtonClicked"
-                android:text="@string/radio5" />
-
-            <RadioButton
-                android:id="@+id/radioButton6"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="#E6E2CE"
-                android:onClick="onRadioButtonClicked"
-                android:text="@string/radio6" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="horizontal">
-
-            </LinearLayout>
-
-        </RadioGroup>
-
         <Button
-            android:id="@+id/buttonCalculate"
+            android:id="@+id/buttonAddInsulin"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginTop="40dp"
             android:backgroundTint="#C2185B"
             android:padding="16dp"
-            android:text="@string/calculate_dose"
+            android:text="@string/add_insulin"
             android:textSize="16sp"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/radioGroup"
-            tools:ignore="MissingConstraints" />
+            app:layout_constraintTop_toBottomOf="@+id/buttonAddMeal" />
+        />
 
         <Button
-            android:id="@+id/buttonNext"
-            android:layout_width="wrap_content"
+            android:id="@+id/buttonGlucoseGraph"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="28dp"
+            android:layout_marginTop="40dp"
             android:backgroundTint="#C2185B"
-            android:onClick="myCalendar"
-            android:text="@string/new_page"
-            app:layout_constraintEnd_toStartOf="@+id/btnLogout"
-            app:layout_constraintHorizontal_bias="0.496"
+            android:padding="16dp"
+            android:text="@string/glucose_graph"
+            android:textSize="16sp"
+            app:layout_constraintTop_toBottomOf="@+id/buttonAddInsulin"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/buttonCalculate"
-            tools:ignore="MissingConstraints" />
-
-        <Button
-            android:id="@+id/btnLogout"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="28dp"
-            android:layout_marginEnd="64dp"
-            android:backgroundTint="#C2185B"
-            android:text="Вихід"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/buttonCalculate"
-            tools:ignore="MissingConstraints" />
+            />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
-
-

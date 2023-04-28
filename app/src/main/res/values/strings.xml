@@ -12,4 +12,7 @@
     <string name="radio5">Кетоацидоз</string>
     <string name="radio6">3й триместр вагітності.</string>
     <string name="new_page">Календар</string>
+    <string name="add_meal">Додати прийом їжі</string>
+    <string name="add_insulin">Додати введення інсуліну</string>
+    <string name="glucose_graph">Графік рівня глюкози</string>
 </resources>
