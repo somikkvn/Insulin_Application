@@ -12,6 +12,11 @@ import com.google.firebase.database.FirebaseDatabase;
 public class MainActivity extends AppCompatActivity {
     Spinner spinner;
 
+    public void myChart(View v){
+        Intent intent = new Intent(this, ChartActivity.class);
+        startActivity(intent);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -35,12 +40,31 @@ public class MainActivity extends AppCompatActivity {
                 dialogFragmentProduct.show(getSupportFragmentManager(), "ProductDialogFragment");
             }
         });
+
+        Button buttonAddGlucose = findViewById(R.id.buttonAddGlucose);
+        buttonAddGlucose.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                GlucoseDialogFragment glucoseFragmentProduct = new GlucoseDialogFragment();
+                glucoseFragmentProduct.show(getSupportFragmentManager(), "GlucoseDialogFragment");
+            }
+        });
+
+        Button buttonDairyInsulin = findViewById(R.id.buttonDairyInsulin);
+        buttonDairyInsulin.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainActivity.this, CalendarActivityInsulin.class);
+                startActivity(intent);
+            }
+        });
     }
 
     public void myCalendar(View v){
         Intent intent = new Intent(this, CalendarActivity.class);
         startActivity(intent);
     }
+
 
     @Override
     protected void onStart() {

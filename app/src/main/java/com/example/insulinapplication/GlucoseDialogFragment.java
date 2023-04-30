@@ -19,7 +19,6 @@ import android.widget.TimePicker;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.DialogFragment;
 
-import com.example.insulinapplication.R;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -32,46 +31,22 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class InsulinDialogFragment extends DialogFragment {
+public class GlucoseDialogFragment extends DialogFragment {
 
     TextView textViewDateTime;
     int selectedYear, selectedMonth, selectedDay, selectedHour, selectedMinute;
     long timestamp;
 
-
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         Dialog dialog = new Dialog(getActivity(), R.style.CustomDialog);
-        dialog.setContentView(R.layout.dialog_insulin);
+        dialog.setContentView(R.layout.dialog_glucose);
         dialog.setTitle("Додати дозування інсуліном");
-
-        Spinner spinner_insulin = dialog.findViewById(R.id.insulinSpinner);
 
         Button buttonSave = dialog.findViewById(R.id.buttonSave);
         Button buttonCancel = dialog.findViewById(R.id.buttonClose);
 
         FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference insulinsRef = database.getReference("insulins");
-        insulinsRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                List<String> options = new ArrayList<String>();
-                for (DataSnapshot ds : snapshot.getChildren()) {
-                    String name = ds.child("name").getValue(String.class);
-                    options.add(name);
-                    Log.w("InsulinDialogFragment", name);
-                }
-                ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_item, options);
-                adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                spinner_insulin.setAdapter(adapter);
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                Log.d("CalendarActivity", "Failed to read value.", error.toException());
-            }
-
-        });
 
         textViewDateTime = dialog.findViewById(R.id.textViewDateTime);
         Button buttonSelectDateTime = dialog.findViewById(R.id.buttonSelectDateTime);
@@ -87,16 +62,16 @@ public class InsulinDialogFragment extends DialogFragment {
         buttonSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                DatabaseReference productRef = database.getReference("insulin_diary");
-
+                DatabaseReference productRef = database.getReference("glucose_diary");
                 productRef.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                        String selectedInsulin = spinner_insulin.getSelectedItem().toString();
+                        EditText glucoseValue = dialog.findViewById(R.id.glucoseValue);
+                        double glucose = Double.parseDouble((glucoseValue).getText().toString());
                         long count = dataSnapshot.getChildrenCount();
                         Map<String, Object> dataMap = new HashMap<>();
                         dataMap.put("id", count + 1);
-                        dataMap.put("insulin", selectedInsulin);
+                        dataMap.put("glucose", glucose);
                         dataMap.put("timestamp", timestamp);
                         productRef.child(String.valueOf(productRef.push().getKey())).setValue(dataMap);
                     }
@@ -107,10 +82,6 @@ public class InsulinDialogFragment extends DialogFragment {
                     }
                 });
                 dismiss();
-                long timerDuration = 1 * 1 * 1000; // 30 хвилин в мілісекундах
-                long timerInterval = 1000; // Інтервал виклику методу onTick() (необов'язково)
-                MedicineTimer timer = new MedicineTimer(timerDuration, timerInterval, getActivity());
-                timer.start();
             }
         });
 

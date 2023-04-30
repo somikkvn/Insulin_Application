@@ -32,17 +32,12 @@ import java.util.ArrayList;
 public class ChartActivity extends AppCompatActivity {
 
     private LineChart mChart;
-    private String userId;
-    FirebaseAuth mAuth;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chart);
 
         // Get the userId from the intent
-        userId = getIntent().getStringExtra("userId");
-        mAuth = FirebaseAuth.getInstance();
-
         mChart = findViewById(R.id.line_chart);
 
         // enable description text
@@ -86,25 +81,22 @@ public class ChartActivity extends AppCompatActivity {
         ArrayList<Entry> entries = new ArrayList<>();
 
         // Retrieve the data from your database here and add it to the entries list
-        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("myTableDose");
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-        String user_id = currentUser.getUid();
-        Query query = databaseReference.orderByChild("userId").equalTo(user_id);
+        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("glucose_diary");
+        Query query = databaseReference.orderByChild("timestamp");
         query.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 int index = 0;
                 for (DataSnapshot ds : dataSnapshot.getChildren()) {
-                    String insulinNorm = ds.child("insulinNorm").getValue(String.class);
+                    Float insulinNorm = ds.child("glucose").getValue(Float.class);
                     if (insulinNorm != null) {
-                        Float insulinNormFloat = Float.parseFloat(insulinNorm);
-                        entries.add(new Entry(index, insulinNormFloat));
+                        entries.add(new Entry(index, insulinNorm));
                         index++;
                     }
                 }
 
                 // Create the LineDataSet and LineData objects
-                LineDataSet dataSet = new LineDataSet(entries, "Insulin Levels");
+                LineDataSet dataSet = new LineDataSet(entries, "Glucose Levels");
                 dataSet.setColor(Color.RED);
                 dataSet.setCircleColor(Color.RED);
                 dataSet.setLineWidth(2f);
@@ -134,7 +126,7 @@ public class ChartActivity extends AppCompatActivity {
     }
 
     public void backCalendar(View v){
-        Intent intent = new Intent(this, CalendarActivity.class);
+        Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
     }
 

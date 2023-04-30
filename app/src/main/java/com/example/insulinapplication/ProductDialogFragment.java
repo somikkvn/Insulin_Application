@@ -151,6 +151,8 @@ public class ProductDialogFragment extends DialogFragment {
                                           sum_ins = sum_ins * 2;
                                       } else if ((mealValue.equals("Обід")) ) {
                                           sum_ins = sum_ins * 1.5;
+                                      } else {
+                                          sum_ins = sum_ins * 1.2;
                                       }
                                       Log.w("meal1", mealValue);
                                       sum_ins = Math.round(sum_ins * 100.0) / 100.0;
