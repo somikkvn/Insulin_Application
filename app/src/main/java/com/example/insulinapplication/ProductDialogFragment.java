@@ -119,10 +119,11 @@ public class ProductDialogFragment extends DialogFragment {
         buttonSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                //Отримаємо ті дані які вибрав користувач ( снідаток, обід чи вечеря)
                 sum_ins = 0;
                 Spinner spinnerMeal = dialog.findViewById(R.id.productMeals);
                 String mealValue = spinnerMeal.getSelectedItem().toString();
-
+                // Обробляємо ті продукти і вагу які вибрав користувач
                 for (int i = 0; i < rowCount; i++) {
                     double editText = Double.parseDouble(((EditText) editTextList.get(i)).getText().toString());
                     String spinnerText = ((Spinner) spinnerList.get(i)).getSelectedItem().toString();
@@ -131,7 +132,10 @@ public class ProductDialogFragment extends DialogFragment {
                     productDiaryMap.put("product", spinnerText);
                     productDiaryMap.put("diary_id", count_meal + 1);
                     productDiaryMap.put("weight", editText);
+                    //вносимо обрані користувачем продукти в журнал щоденника продукта
                     productDiaryRef.child(String.valueOf(productDiaryRef.push().getKey())).setValue(productDiaryMap);
+
+                    //Підтягуються по відомому name всі інші дані продукта (вуглеводи, білки, жири, глікеміччний індекс і калорії)
                     DatabaseReference productsRef = database.getReference("products");
                     Query query = productsRef.orderByChild("name").equalTo(spinnerText);
                     int finalI = i;
@@ -143,19 +147,21 @@ public class ProductDialogFragment extends DialogFragment {
                                   Log.w("teg", name);
                                   double carbohydrates = ds.child("carbohydrates").getValue(Double.class);
                                   double glycemicIndex = ds.child("glycemic_index").getValue(Double.class);
+
+                                  //Формула розрахунку інсуліну короткої дії
                                   sum_ins = sum_ins + (carbohydrates / 10 * glycemicIndex / 100 * editText / 100);
+
 
                                   if (finalI == (rowCount - 1)) {
                                       if (mealValue.equals("Сніданок")) {
-                                          Log.w("meal", mealValue);
                                           sum_ins = sum_ins * 2;
                                       } else if ((mealValue.equals("Обід")) ) {
                                           sum_ins = sum_ins * 1.5;
                                       } else {
                                           sum_ins = sum_ins * 1.2;
                                       }
-                                      Log.w("meal1", mealValue);
                                       sum_ins = Math.round(sum_ins * 100.0) / 100.0;
+                                      //Вносимо в базу даних розрахунки щодо саме цього прийому їжі
                                       mealDiaryMap.put("id", count_meal + 1);
                                       mealDiaryMap.put("recommended_dose", sum_ins);
                                       mealDiaryMap.put("meal", mealValue);
