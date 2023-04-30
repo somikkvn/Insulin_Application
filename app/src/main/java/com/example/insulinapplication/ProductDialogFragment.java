@@ -35,6 +35,7 @@ public class ProductDialogFragment extends DialogFragment {
     private ArrayAdapter<String> adapter;
     ArrayList<EditText> editTextList;
     ArrayList<Spinner> spinnerList;
+    Map<String, Map<String, Object>> productsMap;
 
     int count_meal = 0, count_product = 0;
     double sum_ins;
@@ -47,7 +48,7 @@ public class ProductDialogFragment extends DialogFragment {
         editTextList = new ArrayList<>();
         spinnerList = new ArrayList<>();
         parentLayout = dialog.findViewById(R.id.parentLayout);
-
+        productsMap = new HashMap<>();
         Spinner spinnerMeal = dialog.findViewById(R.id.productMeals);
         String[] options  = getResources().getStringArray(R.array.my_options);
         adapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_item, options);
@@ -59,14 +60,21 @@ public class ProductDialogFragment extends DialogFragment {
 
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference myRef = database.getReference("products");
-        myRef.addListenerForSingleValueEvent(new ValueEventListener() {
+        myRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 List<String> options = new ArrayList<String>();
                 for (DataSnapshot ds : snapshot.getChildren()) {
                     String name = ds.child("name").getValue(String.class);
+                    Map<String, Object> productMap = new HashMap<>();
+                    productMap.put("carbohydrates", ds.child("carbohydrates").getValue(Double.class));
+                    productMap.put("proteins", ds.child("proteins").getValue(Double.class));
+                    productMap.put("fats", ds.child("fats").getValue(Double.class));
+                    productMap.put("glycemic_index", ds.child("glycemic_index").getValue(Double.class));
+                    productsMap.put(name, productMap);
                     options.add(name);
                     Log.w("MainActivity", name);
+
                 }
                 adapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_item, options);
                 adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -125,60 +133,44 @@ public class ProductDialogFragment extends DialogFragment {
                 String mealValue = spinnerMeal.getSelectedItem().toString();
                 // Обробляємо ті продукти і вагу які вибрав користувач
                 for (int i = 0; i < rowCount; i++) {
-                    double editText = Double.parseDouble(((EditText) editTextList.get(i)).getText().toString());
+                    double weight = Double.parseDouble(((EditText) editTextList.get(i)).getText().toString());
                     String spinnerText = ((Spinner) spinnerList.get(i)).getSelectedItem().toString();
                     Map<String, Object> productDiaryMap = new HashMap<>();
                     productDiaryMap.put("id", count_product + i + 1);
                     productDiaryMap.put("product", spinnerText);
                     productDiaryMap.put("diary_id", count_meal + 1);
-                    productDiaryMap.put("weight", editText);
+                    productDiaryMap.put("weight", weight);
                     //вносимо обрані користувачем продукти в журнал щоденника продукта
                     productDiaryRef.child(String.valueOf(productDiaryRef.push().getKey())).setValue(productDiaryMap);
-
-                    //Підтягуються по відомому name всі інші дані продукта (вуглеводи, білки, жири, глікеміччний індекс і калорії)
-                    DatabaseReference productsRef = database.getReference("products");
-                    Query query = productsRef.orderByChild("name").equalTo(spinnerText);
-                    int finalI = i;
-                    query.addValueEventListener(new ValueEventListener() {
-                          @Override
-                          public void onDataChange(DataSnapshot dataSnapshot) {
-                              for (DataSnapshot ds : dataSnapshot.getChildren()) {
-                                  String name = ds.child("name").getValue(String.class);
-                                  Log.w("teg", name);
-                                  double carbohydrates = ds.child("carbohydrates").getValue(Double.class);
-                                  double glycemicIndex = ds.child("glycemic_index").getValue(Double.class);
-
-                                  //Формула розрахунку інсуліну короткої дії
-                                  sum_ins = sum_ins + (carbohydrates / 10 * glycemicIndex / 100 * editText / 100);
-
-
-                                  if (finalI == (rowCount - 1)) {
-                                      if (mealValue.equals("Сніданок")) {
-                                          sum_ins = sum_ins * 2;
-                                      } else if ((mealValue.equals("Обід")) ) {
-                                          sum_ins = sum_ins * 1.5;
-                                      } else {
-                                          sum_ins = sum_ins * 1.2;
-                                      }
-                                      sum_ins = Math.round(sum_ins * 100.0) / 100.0;
-                                      //Вносимо в базу даних розрахунки щодо саме цього прийому їжі
-                                      mealDiaryMap.put("id", count_meal + 1);
-                                      mealDiaryMap.put("recommended_dose", sum_ins);
-                                      mealDiaryMap.put("meal", mealValue);
-                                      mealDiaryMap.put("date", (new Date()).toString());
-                                      mealDiaryRef.child(String.valueOf(mealDiaryRef.push().getKey())).setValue(mealDiaryMap);
-                                      dismiss();
-                                      showMessageDialogFragment(String.valueOf(sum_ins));
-                                  }
-                              }
-                          }
-
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError error) {
-
-                        }
-                    });
+                    Map<String, Object> product_data = productsMap.get(spinnerText);
+                    double carbohydrates = (double) product_data.get("carbohydrates");
+                    double proteins = (double) product_data.get("proteins");
+                    double fats = (double) product_data.get("fats");
+                    double glycemicIndex = (double) product_data.get("glycemic_index");
+                    double k1;
+                    if (mealValue.equals("Сніданок")) {
+                        k1 = 2;
+                    } else if ((mealValue.equals("Обід")) ) {
+                        k1 = 1.5;
+                    } else {
+                        k1 = 1.2;
+                    }
+                    double k2 = k1 - 1;
+                    double xe = carbohydrates * weight / 100;
+                    double first_part = carbohydrates / 100 * glycemicIndex / 100 / xe * k1;
+                    double second_part = carbohydrates / 100 * (100 - glycemicIndex) / 100 / xe * k1;
+                    double third_part = proteins / 100 * 4.1 / 100 * k2;
+                    double fourth_part = fats / 100 * 9.3 / 100 * k2;
+                    sum_ins = sum_ins + (first_part + second_part + third_part + fourth_part) * weight;
                 }
+                sum_ins = Math.round(sum_ins * 100.0) / 100.0;
+                mealDiaryMap.put("id", count_meal + 1);
+                mealDiaryMap.put("recommended_dose", sum_ins);
+                mealDiaryMap.put("meal", mealValue);
+                mealDiaryMap.put("date", (new Date()).toString());
+                mealDiaryRef.child(String.valueOf(mealDiaryRef.push().getKey())).setValue(mealDiaryMap);
+                dismiss();
+                showMessageDialogFragment(String.valueOf(sum_ins));
             }
         });
 
