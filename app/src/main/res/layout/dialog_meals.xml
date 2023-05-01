@@ -90,6 +90,14 @@
         android:onClick="addRow"
         android:text="Додати продукт" />
 
+    <Button
+        android:id="@+id/btnPlus"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="64dp"
+        android:backgroundTint="#C2185B"
+        android:text="Створити новий продукт" />
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
