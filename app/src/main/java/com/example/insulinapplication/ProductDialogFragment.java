@@ -189,6 +189,15 @@ public class ProductDialogFragment extends DialogFragment {
             }
         });
 
+        Button btnPlus = dialog.findViewById(R.id.btnPlus);
+        btnPlus.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FoodDialogFragment dialogFragment = new FoodDialogFragment();
+                dialogFragment.show(requireActivity().getSupportFragmentManager(), "FoodDialogFragment");
+            }
+        });
+
         return dialog;
     }
     private void addRow() {
